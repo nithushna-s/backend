@@ -8,6 +8,7 @@ const Subscription=require ('./routes/subscription')
 const loggerMiddleware = require('./middlewares/loggerMiddleware');
 const mongoString = process.env.DATABASE_URL;
 mongoose.connect(mongoString);
+const serverless = require('serverless-http');
 
 const database = mongoose.connection;
 
@@ -28,10 +29,8 @@ app.use(cors({credentials: true, origin: 'http://localhost:3000'}));
 app.use(express.json());
 
 app.use('/api',routes ,Subscription);
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
-});
-
+app.use('/.netlify/functions/api', router);
+module.exports.handler = serverless(app);
 
 app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });
